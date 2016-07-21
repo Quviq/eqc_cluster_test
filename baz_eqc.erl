@@ -1,9 +1,9 @@
--module(foo_eqc).
+-module(baz_eqc).
 -compile([export_all]).
 -include_lib("eqc/include/eqc_component.hrl").
 -include_lib("eqc/include/eqc.hrl").
 
--record(foostate, {}).
+-record(bazstate, {}).
 
 run() ->
     eqc:quickcheck(eqc:testing_time(5, prop_correct())).
@@ -15,26 +15,23 @@ recheck() ->
     eqc:recheck(prop_correct()).
 
 
-foo_args(_State) ->
+baz_args(_State) ->
     [oneof([binary(),int(),list(char())])].
 
-foo(Thing) ->
-    foo:foo(Thing).
+baz(Thing) ->
+    baz:baz(Thing).
 
-foo_callouts(_State, [Thing]) ->
-    ?CALLOUT(bar, bar, [Thing], {bar, {baz, Thing}}).
+baz_post(_State, [Thing], R) ->
+    eq(R, {baz, Thing}).
 
-foo_next(State, _V, _Args) ->
+baz_next(State, _V, _Args) ->
     State.
 
-foo_post(_State, [Thing], R) ->
-    eq(R, {foo, {bar, {baz, Thing}}}).
-
 initial_state() ->
-    #foostate{}.
+    #bazstate{}.
 
 api_spec() ->
-    #api_spec{modules = [#api_module{name = bar, functions = [#api_fun{name = bar, arity = 1, classify = bar_eqc}]}]}.
+    #api_spec{}.
 
 prop_correct() ->
     ?SETUP(fun() ->
