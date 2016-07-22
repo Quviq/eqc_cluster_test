@@ -20,7 +20,7 @@ api_spec() ->
 
 prop_cluster_correct() ->
     ?SETUP(fun() ->
-                   eqc_mocking:start_mocking(api_spec()),
+                   eqc_mocking:start_mocking(api_spec(), components()),
                    fun() -> eqc_mocking:stop_mocking() end
            end,
            ?FORALL(Cmds,commands(?MODULE),

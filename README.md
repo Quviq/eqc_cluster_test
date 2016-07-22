@@ -104,3 +104,32 @@ Reason:
   Callout mismatch: unexpected: baz:baz(0)
 false
 ```
+
+The observable strange thing here is that QuickCheck believes that baz
+is being mocked, where it isn't. The cluster should only mock the
+modules that are not part of the cluster. Look in the cluster_eqc
+module:
+
+```
+components() ->
+   [foo_eqc, bar_eqc, baz_eqc].
+
+prop_cluster_correct() ->
+    ?SETUP(fun() ->
+                   eqc_mocking:start_mocking(api_spec()),
+                   fun() -> eqc_mocking:stop_mocking() end
+                end,
+                   ....).
+```
+
+The mocking framework is *not* told which modules are part of the
+component.  The property should instead start with:
+
+```
+prop_cluster_correct() ->
+    ?SETUP(fun() ->
+                   eqc_mocking:start_mocking(api_spec(), components()),
+                   fun() -> eqc_mocking:stop_mocking() end
+                end,
+                   ....).
+```
